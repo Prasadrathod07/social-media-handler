@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "Social Media Handler",
+    "slug": "social-media-handler",
+    "scheme": "smhandler",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.socialmediahandler.app"
+    },
+    "android": {
+      "package": "com.socialmediahandler.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#6a3bff",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Social Media Handler to access your photos so we can help craft posts from them."
+        }
+      ],
+      "expo-splash-screen"
+    ],
+    "extra": {
+      "apiBaseUrl": "http://localhost:4000/api/v1"
+    }
+  }
+}
