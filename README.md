@@ -25,6 +25,30 @@ Admin Dashboard (Next.js, TS) ──▶ Backend API
 
 See `docs/ARCHITECTURE.md` for the full design and MongoDB schema (added alongside the initial scaffolding).
 
+## Local development
+
+MongoDB and Redis run via Docker Compose; everything else runs natively for fast iteration.
+
+```bash
+docker compose up -d          # starts mongo (27017) and redis (6379)
+docker compose ps             # check health
+docker compose logs -f mongo  # tail logs
+docker compose down           # stop (add -v to also wipe volumes/data)
+```
+
+Then, in separate terminals:
+
+```bash
+cd backend && npm install && cp .env.example .env && npm run dev       # :4000
+cd ai-service && python3 -m venv .venv && source .venv/bin/activate \
+  && pip install -r requirements.txt && cp .env.example .env \
+  && uvicorn app.main:app --reload --port 8000                        # :8000
+cd mobile && npm install && npm start                                  # Expo dev server
+cd admin && npm install && cp .env.local.example .env.local && npm run dev  # :3000
+```
+
+The backend's `.env.example` already points at the Compose defaults (`mongodb://localhost:27017/social-media-handler`, `redis://localhost:6379`) — no changes needed for local dev.
+
 ## Getting started
 
 Each workspace has its own README with setup instructions:
