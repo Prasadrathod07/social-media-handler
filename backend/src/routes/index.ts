@@ -7,6 +7,7 @@ import topicRoutes from "./topicRoutes";
 import postRoutes from "./postRoutes";
 import conversationRoutes from "./conversationRoutes";
 import adminRoutes from "./adminRoutes";
+import subscriptionRoutes from "./subscriptionRoutes";
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use("/topics", topicRoutes);
 router.use("/posts", postRoutes);
 router.use("/conversations", conversationRoutes);
 router.use("/admin", adminRoutes);
+router.use("/subscription", subscriptionRoutes);
 
 export default router;

@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { Switch, View, RefreshControl } from "react-native";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { ScreenContainer, Heading, Muted, Card, AppText, Avatar, Badge, Button, PlatformIcon } from "@/components";
 import { useAuthStore } from "@/store/authStore";
@@ -51,6 +51,16 @@ export default function ProfileScreen() {
             <Badge label={`${user.subscription.cadence} plan`} tone="brand" />
           </View>
         ) : null}
+        <View className="mt-3">
+          <Button
+            label="Edit profile"
+            variant="secondary"
+            size="md"
+            fullWidth={false}
+            icon={<FontAwesome6 name="pen" size={12} color="#5522eb" />}
+            onPress={() => router.push("/edit-profile")}
+          />
+        </View>
       </View>
 
       <AppText weight="semibold" className="mb-2 mt-6 text-base">
@@ -108,14 +118,30 @@ export default function ProfileScreen() {
       <AppText weight="semibold" className="mb-2 mt-6 text-base">
         Account
       </AppText>
-      <Card className="gap-3">
-        <View className="flex-row items-center justify-between">
-          <AppText className="text-sm">Subscription</AppText>
-          <AppText weight="medium" className="text-sm capitalize">
-            {user?.subscription?.status ?? "none"}
-          </AppText>
-        </View>
-      </Card>
+      <View className="gap-2">
+        <Card className="flex-row items-center justify-between" onTouchEnd={() => router.push("/billing")}>
+          <View className="flex-row items-center gap-3">
+            <View className="h-9 w-9 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-900/40">
+              <FontAwesome6 name="credit-card" size={14} color="#6a3bff" />
+            </View>
+            <View>
+              <AppText weight="medium">Billing &amp; plan</AppText>
+              <Muted className="text-xs capitalize">{user?.subscription?.status ?? "none"}</Muted>
+            </View>
+          </View>
+          <FontAwesome6 name="chevron-right" size={13} color="#94a3b8" />
+        </Card>
+
+        <Card className="flex-row items-center justify-between" onTouchEnd={() => router.push("/post-history")}>
+          <View className="flex-row items-center gap-3">
+            <View className="h-9 w-9 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-900/40">
+              <FontAwesome6 name="clock-rotate-left" size={14} color="#6a3bff" />
+            </View>
+            <AppText weight="medium">Post history</AppText>
+          </View>
+          <FontAwesome6 name="chevron-right" size={13} color="#94a3b8" />
+        </Card>
+      </View>
 
       <View className="mt-6 mb-4">
         <Button

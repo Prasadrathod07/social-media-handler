@@ -4,6 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import {
   createPlan,
   getPlatformStats,
+  getUserDetail,
   listAllPosts,
   listPlans,
   listUsers,
@@ -18,6 +19,7 @@ router.use(requireAuth, requireAdmin);
 router.get("/stats", asyncHandler(getPlatformStats));
 
 router.get("/users", asyncHandler(listUsers));
+router.get("/users/:id", asyncHandler(getUserDetail));
 router.patch("/users/:id/role", asyncHandler(setUserRole));
 
 router.get("/posts", asyncHandler(listAllPosts));

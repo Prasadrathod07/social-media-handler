@@ -64,6 +64,18 @@ export default function RootLayout() {
               name="post/[id]"
               options={{ presentation: "modal", headerShown: true, title: "Review post" }}
             />
+            <Stack.Screen
+              name="edit-profile"
+              options={{ presentation: "modal", headerShown: true, title: "Edit profile" }}
+            />
+            <Stack.Screen
+              name="post-history"
+              options={{ headerShown: true, title: "Post history" }}
+            />
+            <Stack.Screen
+              name="billing"
+              options={{ headerShown: true, title: "Billing & plan" }}
+            />
           </Stack.Protected>
         </Stack>
       </SafeAreaProvider>

@@ -1,5 +1,5 @@
 import { api } from "./api";
-import { PlatformStats, PlatformUser, Post, SubscriptionPlan } from "@/types";
+import { PlatformStats, PlatformUser, Post, SubscriptionPlan, UserDetail } from "@/types";
 
 export function getStats(): Promise<PlatformStats> {
   return api.get("/admin/stats");
@@ -7,6 +7,10 @@ export function getStats(): Promise<PlatformStats> {
 
 export function listUsers(page = 1, limit = 20): Promise<{ users: PlatformUser[]; total: number }> {
   return api.get(`/admin/users?page=${page}&limit=${limit}`);
+}
+
+export function getUserDetail(id: string): Promise<UserDetail> {
+  return api.get(`/admin/users/${id}`);
 }
 
 export function setUserRole(id: string, role: "user" | "admin"): Promise<PlatformUser> {

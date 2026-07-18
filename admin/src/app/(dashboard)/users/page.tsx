@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Table, Thead, Tbody, Tr, Th, Td } from "@/components/ui/Table";
@@ -10,6 +11,7 @@ import { PlatformUser } from "@/types";
 const PAGE_SIZE = 20;
 
 export default function UsersPage() {
+  const router = useRouter();
   const [users, setUsers] = useState<PlatformUser[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -59,7 +61,7 @@ export default function UsersPage() {
           </Thead>
           <Tbody>
             {users.map((u) => (
-              <Tr key={u._id}>
+              <Tr key={u._id} onClick={() => router.push(`/users/${u._id}`)} className="cursor-pointer">
                 <Td className="font-medium">{u.name}</Td>
                 <Td className="text-muted">{u.email}</Td>
                 <Td className="capitalize">{u.subscription.cadence ?? "—"}</Td>
@@ -74,7 +76,14 @@ export default function UsersPage() {
                 </Td>
                 <Td className="text-muted">{new Date(u.createdAt).toLocaleDateString()}</Td>
                 <Td>
-                  <Button variant="ghost" size="sm" onClick={() => toggleRole(u)}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleRole(u);
+                    }}
+                  >
                     {u.role === "admin" ? "Revoke admin" : "Make admin"}
                   </Button>
                 </Td>

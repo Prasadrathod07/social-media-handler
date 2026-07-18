@@ -62,3 +62,38 @@ export interface PlatformStats {
   postsPendingApproval: number;
   postsFlaggedHighRisk: number;
 }
+
+export interface Profile {
+  resumeText?: string;
+  bio?: string;
+  aboutMe?: string;
+  tone: string[];
+  focusAreas: string[];
+}
+
+export interface Schedule {
+  _id: string;
+  cadence: Cadence;
+  time: string;
+  timezone: string;
+  requireApproval: boolean;
+  platforms: Platform[];
+  active: boolean;
+}
+
+export interface SocialAccount {
+  _id: string;
+  platform: Platform;
+  platformHandle?: string;
+  status: "active" | "expired" | "revoked";
+  connectedAt: string;
+}
+
+export interface UserDetail {
+  user: PlatformUser & { aiPaused: boolean };
+  profile: Profile | null;
+  schedules: Schedule[];
+  socialAccounts: SocialAccount[];
+  recentPosts: Post[];
+  postCounts: Record<string, number>;
+}
