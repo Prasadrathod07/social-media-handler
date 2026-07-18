@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { Alert, View } from "react-native";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { ScreenContainer, Heading, Muted, Card, AppText, Badge, Button, PlatformIcon } from "@/components";
 import { useAuthStore } from "@/store/authStore";
@@ -18,7 +18,14 @@ export default function BillingScreen() {
       .finally(() => setLoading(false));
   }, []);
 
-  async function onSelect(plan: SubscriptionPlan) {
+  function onSubscribe(plan: SubscriptionPlan) {
+    Alert.alert(
+      "Payment isn't live yet",
+      `Card payment for the ${plan.name} plan isn't wired up in this build. Use "Activate for testing" below to try it out without paying.`
+    );
+  }
+
+  async function onActivateForTesting(plan: SubscriptionPlan) {
     setSelectingId(plan._id);
     try {
       await selectPlan(plan._id);
@@ -53,8 +60,8 @@ export default function BillingScreen() {
       <View className="mt-2 flex-row items-start gap-2 rounded-xl bg-slate-50 p-3 dark:bg-slate-900">
         <FontAwesome6 name="circle-info" size={13} color="#94a3b8" style={{ marginTop: 2 }} />
         <Muted className="flex-1 text-xs">
-          Payment processing isn't live yet — selecting a plan starts a trial and sets your posting cadence. You
-          won't be charged.
+          Card payment isn't live in this build yet. "Subscribe" will explain that once tapped — use "Activate for
+          testing" to try a plan without paying.
         </Muted>
       </View>
 
@@ -89,13 +96,15 @@ export default function BillingScreen() {
               </View>
 
               {!isCurrent ? (
-                <View className="mt-3">
+                <View className="mt-3 gap-2">
+                  <Button label="Subscribe" size="md" onPress={() => onSubscribe(plan)} />
                   <Button
-                    label="Select plan"
-                    variant="secondary"
+                    label="Activate for testing (skip payment)"
+                    variant="ghost"
                     size="md"
                     loading={selectingId === plan._id}
-                    onPress={() => onSelect(plan)}
+                    icon={<FontAwesome6 name="flask" size={12} color="#64748b" />}
+                    onPress={() => onActivateForTesting(plan)}
                   />
                 </View>
               ) : null}
