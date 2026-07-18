@@ -28,6 +28,8 @@ export interface IPost extends Document {
   mediaUrls: string[];
   status: PostStatus;
   safetyReview?: ISafetyReview;
+  /** Who moved this post out of pendingApproval — the judge agent (autonomous path) or the user. */
+  decidedBy?: "ai" | "user";
   scheduledAt?: Date;
   publishedAt?: Date;
   platformPostId?: string;
@@ -59,6 +61,7 @@ const postSchema = new Schema<IPost>(
       default: "draft",
     },
     safetyReview: { type: safetyReviewSchema },
+    decidedBy: { type: String, enum: ["ai", "user"] },
     scheduledAt: { type: Date },
     publishedAt: { type: Date },
     platformPostId: { type: String },

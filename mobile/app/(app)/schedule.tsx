@@ -30,8 +30,8 @@ export default function ScheduleScreen() {
     }, [load])
   );
 
-  async function toggleAutoPublish(schedule: Schedule) {
-    const updated = await updateSchedule(schedule._id, { autoPublish: !schedule.autoPublish });
+  async function toggleRequireApproval(schedule: Schedule) {
+    const updated = await updateSchedule(schedule._id, { requireApproval: !schedule.requireApproval });
     setSchedules((prev) => prev.map((s) => (s._id === schedule._id ? updated : s)));
   }
 
@@ -72,8 +72,19 @@ export default function ScheduleScreen() {
             </View>
 
             <View className="mt-4 flex-row items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-800">
-              <AppText className="text-sm">Auto-publish (skip approval)</AppText>
-              <Switch value={s.autoPublish} onValueChange={() => toggleAutoPublish(s)} trackColor={{ true: "#6a3bff" }} />
+              <View className="flex-1 pr-3">
+                <AppText className="text-sm">Require my approval on every post</AppText>
+                <Muted className="mt-0.5 text-xs">
+                  {s.requireApproval
+                    ? "You'll review every post before it's ready."
+                    : "Clean, low-risk posts go through automatically. Anything flagged still waits for you."}
+                </Muted>
+              </View>
+              <Switch
+                value={s.requireApproval}
+                onValueChange={() => toggleRequireApproval(s)}
+                trackColor={{ true: "#6a3bff" }}
+              />
             </View>
             <View className="mt-2 flex-row items-center justify-between">
               <AppText className="text-sm">Active</AppText>

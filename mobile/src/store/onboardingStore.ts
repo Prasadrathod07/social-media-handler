@@ -8,7 +8,7 @@ interface OnboardingState {
   platforms: Platform[];
   cadence: Cadence;
   time: string;
-  autoPublish: boolean;
+  requireApproval: boolean;
   setField: <K extends keyof OnboardingState>(key: K, value: OnboardingState[K]) => void;
   togglePlatform: (platform: Platform) => void;
   reset: () => void;
@@ -21,7 +21,7 @@ const defaults = {
   platforms: [] as Platform[],
   cadence: "weekly" as Cadence,
   time: "09:00",
-  autoPublish: false,
+  requireApproval: false,
 };
 
 export const useOnboardingStore = create<OnboardingState>((set, get) => ({

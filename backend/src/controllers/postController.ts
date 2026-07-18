@@ -1,9 +1,31 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { Post, Topic } from "../models";
+import { Post, PostStatus, Schedule, Topic } from "../models";
 import { ApiError } from "../utils/ApiError";
-import { generatePostContent, generatePostImage, reviewContent } from "../services/aiServiceClient";
+import { generatePostContent, generatePostImage, reviewContent, SafetyReviewResult } from "../services/aiServiceClient";
 import { saveBase64Image } from "../utils/fileStorage";
+
+/**
+ * Autonomous-by-default decision: a schedule with requireApproval=false (the
+ * default) lets a low-risk post go straight to "approved" without a human.
+ * Medium/high risk always waits for a human regardless of that setting —
+ * the safety floor is not configurable.
+ */
+async function decideInitialStatus(
+  userId: string,
+  review: SafetyReviewResult
+): Promise<{ status: PostStatus; decidedBy?: "ai" }> {
+  if (review.riskLevel !== "low") {
+    return { status: "pendingApproval" };
+  }
+
+  const schedule = await Schedule.findOne({ userId, active: true });
+  if (schedule?.requireApproval) {
+    return { status: "pendingApproval" };
+  }
+
+  return { status: "approved", decidedBy: "ai" };
+}
 
 export async function listMyPosts(req: Request, res: Response): Promise<void> {
   const { status } = z.object({ status: z.string().optional() }).parse(req.query);
@@ -28,13 +50,15 @@ export async function generatePost(req: Request, res: Response): Promise<void> {
 
   const { content } = await generatePostContent(req.user!.id, platform, topic.subjectText);
   const review = await reviewContent(req.user!.id, platform, content);
+  const { status, decidedBy } = await decideInitialStatus(req.user!.id, review);
 
   const post = await Post.create({
     userId: req.user!.id,
     topicId: topic._id,
     platform,
     content,
-    status: "pendingApproval",
+    status,
+    decidedBy,
     safetyReview: { ...review, reviewedAt: new Date() },
   });
 
@@ -77,7 +101,10 @@ export async function updatePostStatus(req: Request, res: Response): Promise<voi
   }
 
   const update: Record<string, unknown> = {};
-  if (status) update.status = status;
+  if (status) {
+    update.status = status;
+    if (status === "approved") update.decidedBy = "user";
+  }
   if (scheduledAt) update.scheduledAt = new Date(scheduledAt);
 
   if (content && content !== existing.content) {

@@ -49,7 +49,7 @@ export interface Schedule {
   dayOfMonth?: number;
   time: string;
   timezone: string;
-  autoPublish: boolean;
+  requireApproval: boolean;
   platforms: Platform[];
   active: boolean;
 }
@@ -71,6 +71,7 @@ export interface Post {
   mediaUrls: string[];
   status: "draft" | "pendingApproval" | "approved" | "scheduled" | "published" | "failed";
   safetyReview?: SafetyReview;
+  decidedBy?: "ai" | "user";
   scheduledAt?: string;
   publishedAt?: string;
   createdAt: string;

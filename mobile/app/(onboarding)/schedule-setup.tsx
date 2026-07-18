@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View } from "react-native";
+import { Switch, View } from "react-native";
 import { router } from "expo-router";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { ScreenContainer, Heading, Muted, Button, StepDots, Card, AppText } from "@/components";
@@ -17,7 +17,7 @@ const cadenceOptions: { id: Cadence; title: string; body: string; badge: string 
 ];
 
 export default function ScheduleSetupScreen() {
-  const { resumeText, bio, aboutMe, cadence, time, setField } = useOnboardingStore();
+  const { resumeText, bio, aboutMe, cadence, time, requireApproval, setField } = useOnboardingStore();
   const refreshUser = useAuthStore((s) => s.refreshUser);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | undefined>();
@@ -31,7 +31,7 @@ export default function ScheduleSetupScreen() {
         cadence,
         time,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone ?? "UTC",
-        autoPublish: false,
+        requireApproval,
         platforms: ["linkedin"],
         active: true,
       });
@@ -87,6 +87,24 @@ export default function ScheduleSetupScreen() {
             );
           })}
         </View>
+
+        <Card className="mt-4 flex-row items-center justify-between">
+          <View className="flex-1 pr-3">
+            <AppText weight="medium" className="text-sm">
+              Require my approval on every post
+            </AppText>
+            <Muted className="mt-0.5 text-xs">
+              {requireApproval
+                ? "You'll review every post before it's ready to go out."
+                : "Clean, low-risk posts go out on their own. Anything our AI flags still waits for you."}
+            </Muted>
+          </View>
+          <Switch
+            value={requireApproval}
+            onValueChange={(v) => setField("requireApproval", v)}
+            trackColor={{ true: "#6a3bff" }}
+          />
+        </Card>
 
         {error ? <AppText className="mt-4 text-sm text-danger">{error}</AppText> : null}
       </View>

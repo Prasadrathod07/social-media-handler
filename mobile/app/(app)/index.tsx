@@ -11,16 +11,19 @@ export default function HomeScreen() {
   const user = useAuthStore((s) => s.user);
   const [pending, setPending] = useState<Post[]>([]);
   const [upcoming, setUpcoming] = useState<Post[]>([]);
+  const [autoApproved, setAutoApproved] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
-      const [pendingApproval, scheduled] = await Promise.all([
+      const [pendingApproval, scheduled, approved] = await Promise.all([
         listPosts("pendingApproval"),
         listPosts("scheduled"),
+        listPosts("approved"),
       ]);
       setPending(pendingApproval);
       setUpcoming(scheduled);
+      setAutoApproved(approved.filter((p) => p.decidedBy === "ai"));
     } finally {
       setLoading(false);
     }
@@ -85,6 +88,33 @@ export default function HomeScreen() {
           ))}
         </View>
       )}
+
+      {autoApproved.length > 0 ? (
+        <>
+          <View className="mt-6 flex-row items-center gap-2">
+            <FontAwesome6 name="wand-magic-sparkles" size={12} color="#6a3bff" />
+            <AppText weight="semibold" className="text-base">
+              Auto-approved by AI
+            </AppText>
+          </View>
+          <Muted className="mt-0.5 text-xs">Low-risk posts our AI approved on its own — worth a glance.</Muted>
+          <View className="mt-3 gap-2">
+            {autoApproved.slice(0, 3).map((post) => (
+              <Card key={post._id} onTouchEnd={() => router.push(`/post/${post._id}`)}>
+                <View className="flex-row items-center gap-3">
+                  <PlatformIcon platform={post.platform} size={16} />
+                  <View className="flex-1">
+                    <AppText weight="medium" numberOfLines={2}>
+                      {post.content}
+                    </AppText>
+                  </View>
+                  <FontAwesome6 name="chevron-right" size={13} color="#94a3b8" />
+                </View>
+              </Card>
+            ))}
+          </View>
+        </>
+      ) : null}
 
       <View className="mt-6 flex-row items-center justify-between">
         <AppText weight="semibold" className="text-base">

@@ -8,7 +8,7 @@ const scheduleSchema = z.object({
   dayOfMonth: z.number().min(1).max(31).optional(),
   time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
   timezone: z.string(),
-  autoPublish: z.boolean().optional(),
+  requireApproval: z.boolean().optional(),
   platforms: z.array(z.enum(["linkedin", "x", "instagram", "facebook", "blog"])),
 });
 

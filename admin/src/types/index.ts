@@ -38,6 +38,7 @@ export interface Post {
   content: string;
   status: "draft" | "pendingApproval" | "approved" | "scheduled" | "published" | "failed";
   safetyReview?: SafetyReview;
+  decidedBy?: "ai" | "user";
   scheduledAt?: string;
   publishedAt?: string;
   createdAt: string;

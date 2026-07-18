@@ -91,6 +91,7 @@ export default function PostsPage() {
               <Th>Platform</Th>
               <Th>Status</Th>
               <Th>Safety review</Th>
+              <Th>Decided by</Th>
               <Th>Created</Th>
             </Tr>
           </Thead>
@@ -110,12 +111,19 @@ export default function PostsPage() {
                     <span className="text-xs text-muted">—</span>
                   )}
                 </Td>
+                <Td>
+                  {post.decidedBy ? (
+                    <Badge label={post.decidedBy === "ai" ? "AI" : "Human"} tone={post.decidedBy === "ai" ? "brand" : "neutral"} />
+                  ) : (
+                    <span className="text-xs text-muted">—</span>
+                  )}
+                </Td>
                 <Td className="text-muted">{new Date(post.createdAt).toLocaleDateString()}</Td>
               </Tr>
             ))}
             {!loading && visiblePosts.length === 0 ? (
               <Tr>
-                <Td colSpan={6} className="text-center text-muted">
+                <Td colSpan={7} className="text-center text-muted">
                   No posts found.
                 </Td>
               </Tr>

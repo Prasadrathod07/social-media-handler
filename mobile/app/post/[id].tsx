@@ -104,11 +104,18 @@ export default function PostReviewScreen() {
               {post.platform}
             </AppText>
           </View>
-          <Badge label={post.status} tone={post.status === "published" ? "success" : "warning"} />
+          <View className="flex-row items-center gap-1.5">
+            {post.decidedBy === "ai" ? <Badge label="Auto-approved" tone="brand" /> : null}
+            <Badge label={post.status} tone={post.status === "published" ? "success" : "warning"} />
+          </View>
         </View>
 
         <Heading className="mt-4">Review before it goes out</Heading>
-        <Muted className="mt-1 mb-5">Edit freely — this is exactly what will be published.</Muted>
+        <Muted className="mt-1 mb-5">
+          {post.decidedBy === "ai"
+            ? "Our AI reviewed this as low-risk and approved it on its own. You can still edit it anytime."
+            : "Edit freely — this is exactly what will be published."}
+        </Muted>
 
         {review ? (
           <Card className="mb-4">

@@ -10,7 +10,14 @@ export interface ISchedule extends Document {
   dayOfMonth?: number; // 1-31, used when cadence === "monthly"
   time: string; // "HH:mm" in the user's timezone
   timezone: string;
-  autoPublish: boolean;
+  /**
+   * Default false: the platform behaves autonomously — a cleanly-reviewed
+   * (low risk) post is approved automatically without waiting on the user.
+   * Set true to require the user's explicit approval on every post
+   * regardless of the safety review outcome. Either way, a medium/high risk
+   * post always waits for a human — this flag only affects the low-risk path.
+   */
+  requireApproval: boolean;
   platforms: Platform[];
   active: boolean;
 }
@@ -22,7 +29,7 @@ const scheduleSchema = new Schema<ISchedule>({
   dayOfMonth: { type: Number, min: 1, max: 31 },
   time: { type: String, required: true, default: "09:00" },
   timezone: { type: String, required: true, default: "UTC" },
-  autoPublish: { type: Boolean, default: false },
+  requireApproval: { type: Boolean, default: false },
   platforms: { type: [String], default: [] },
   active: { type: Boolean, default: true },
 });
