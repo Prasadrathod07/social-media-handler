@@ -28,6 +28,7 @@ Super Admin Dashboard (Next.js, TypeScript) ──▶ Backend API (admin-scoped 
   - **Vision Agent** — extracts descriptive info from uploaded images.
   - **Ideation Agent** — proposes post subjects using RAG over the user's FAISS index.
   - **Content Agent(s)** — platform-specific copy generation (LinkedIn, X, Instagram, Facebook, blog).
+  - **Image Agent** — generates a matching banner/graphic per post (OpenAI `gpt-image-1`), sized per platform. Returned as base64; the backend decodes and stores it under `backend/uploads/`, serving it back over HTTP and recording the URL on `Post.mediaUrls`. Triggered on demand from the post review screen, not automatically on every post.
   - **Conversational Agent** — chat interface, RAG-grounded.
   - Embeddings: OpenAI (`text-embedding-3-small`). Vector store: FAISS, one index per user, with a MongoDB `knowledgeChunks` collection mapping FAISS vector IDs to source text/metadata.
 - **`admin/`** — Next.js + TypeScript super admin dashboard. Operates the whole platform: user management, subscription/plan management, post moderation, connected-account health, agent job monitoring/logs.

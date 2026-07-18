@@ -27,6 +27,8 @@ export const env = {
   aiServiceApiKey: process.env.AI_SERVICE_API_KEY ?? "",
 
   tokenEncryptionKey: process.env.TOKEN_ENCRYPTION_KEY ?? "",
+
+  publicBaseUrl: process.env.PUBLIC_BASE_URL ?? "http://localhost:4000",
 };
 
 export const isProduction = env.nodeEnv === "production";

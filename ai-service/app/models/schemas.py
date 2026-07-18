@@ -60,3 +60,14 @@ class VisionDescribeRequest(BaseModel):
 
 class VisionDescribeResponse(BaseModel):
     description: str
+
+
+class GenerateImageRequest(BaseModel):
+    userId: str
+    platform: Platform
+    subjectText: str
+    content: str
+
+
+class GenerateImageResponse(BaseModel):
+    imageBase64: str

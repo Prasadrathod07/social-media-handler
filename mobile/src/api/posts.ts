@@ -15,3 +15,7 @@ export async function updatePostStatus(
 ): Promise<Post> {
   return api.patch<Post>(`/posts/${id}/status`, payload);
 }
+
+export async function generatePostImage(id: string): Promise<Post> {
+  return api.post<Post>(`/posts/${id}/generate-image`);
+}

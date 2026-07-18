@@ -47,3 +47,12 @@ export function embedAndIndexText(
 export function chatWithAgent(userId: string, conversationId: string, message: string): Promise<{ reply: string }> {
   return aiFetch("/agents/chat", { userId, conversationId, message });
 }
+
+export function generatePostImage(
+  userId: string,
+  platform: string,
+  subjectText: string,
+  content: string
+): Promise<{ imageBase64: string }> {
+  return aiFetch("/agents/image/generate", { userId, platform, subjectText, content });
+}

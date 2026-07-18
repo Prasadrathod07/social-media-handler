@@ -13,6 +13,7 @@ __pycache__/
 .venv/
 venv/
 faiss_indexes/
+backend/uploads/
 .DS_Store
 coverage/
 .next/

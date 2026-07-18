@@ -11,6 +11,7 @@ class Settings(BaseSettings):
 
     openai_api_key: str = ""
     openai_embedding_model: str = "text-embedding-3-small"
+    openai_image_model: str = "gpt-image-1"
 
     generation_provider: str = "anthropic"  # "anthropic" | "openai"
     anthropic_api_key: str = ""

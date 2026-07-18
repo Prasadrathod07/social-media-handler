@@ -3,12 +3,15 @@ from fastapi import APIRouter, Depends
 from app.agents.chat_agent import reply as chat_reply
 from app.agents.content_agent import generate_post
 from app.agents.ideation_agent import suggest_topics
+from app.agents.image_agent import generate_image
 from app.agents.vision_agent import describe_image
 from app.models.schemas import (
     ChatRequest,
     ChatResponse,
     GenerateContentRequest,
     GenerateContentResponse,
+    GenerateImageRequest,
+    GenerateImageResponse,
     SuggestTopicsRequest,
     SuggestTopicsResponse,
     VisionDescribeRequest,
@@ -41,3 +44,9 @@ def chat(payload: ChatRequest) -> ChatResponse:
 def vision_describe(payload: VisionDescribeRequest) -> VisionDescribeResponse:
     description = describe_image(payload.imageUrl)
     return VisionDescribeResponse(description=description)
+
+
+@router.post("/image/generate", response_model=GenerateImageResponse)
+def image_generate(payload: GenerateImageRequest) -> GenerateImageResponse:
+    image_base64 = generate_image(payload.platform, payload.subjectText, payload.content)
+    return GenerateImageResponse(imageBase64=image_base64)

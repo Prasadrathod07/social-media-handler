@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { Post, Topic } from "../models";
 import { ApiError } from "../utils/ApiError";
-import { generatePostContent } from "../services/aiServiceClient";
+import { generatePostContent, generatePostImage } from "../services/aiServiceClient";
+import { saveBase64Image } from "../utils/fileStorage";
 
 export async function listMyPosts(req: Request, res: Response): Promise<void> {
   const { status } = z.object({ status: z.string().optional() }).parse(req.query);
@@ -34,6 +35,26 @@ export async function generatePost(req: Request, res: Response): Promise<void> {
     content,
     status: "pendingApproval",
   });
+
+  res.status(201).json(post);
+}
+
+export async function generatePostImageForPost(req: Request, res: Response): Promise<void> {
+  const { id } = z.object({ id: z.string() }).parse(req.params);
+
+  const post = await Post.findOne({ _id: id, userId: req.user!.id });
+  if (!post) {
+    throw new ApiError(404, "Post not found");
+  }
+
+  const topic = post.topicId ? await Topic.findById(post.topicId) : null;
+  const subjectText = topic?.subjectText ?? post.content.slice(0, 120);
+
+  const { imageBase64 } = await generatePostImage(req.user!.id, post.platform, subjectText, post.content);
+  const imageUrl = await saveBase64Image("posts", imageBase64);
+
+  post.mediaUrls.push(imageUrl);
+  await post.save();
 
   res.status(201).json(post);
 }

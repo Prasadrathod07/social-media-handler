@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { View } from "react-native";
+import { Image, View } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { ScreenContainer, Heading, Muted, Card, AppText, Badge, Button, Input, PlatformIcon } from "@/components";
-import { listPosts, updatePostStatus } from "@/api/posts";
+import { generatePostImage, listPosts, updatePostStatus } from "@/api/posts";
 import { Post } from "@/types";
 
 export default function PostReviewScreen() {
@@ -11,6 +11,7 @@ export default function PostReviewScreen() {
   const [post, setPost] = useState<Post | null>(null);
   const [content, setContent] = useState("");
   const [saving, setSaving] = useState<"approve" | "save" | null>(null);
+  const [generatingImage, setGeneratingImage] = useState(false);
 
   const load = useCallback(async () => {
     const posts = await listPosts();
@@ -45,6 +46,17 @@ export default function PostReviewScreen() {
     }
   }
 
+  async function onGenerateImage() {
+    if (!post) return;
+    setGeneratingImage(true);
+    try {
+      const updated = await generatePostImage(post._id);
+      setPost(updated);
+    } finally {
+      setGeneratingImage(false);
+    }
+  }
+
   if (!post) {
     return (
       <ScreenContainer>
@@ -54,6 +66,8 @@ export default function PostReviewScreen() {
       </ScreenContainer>
     );
   }
+
+  const image = post.mediaUrls[post.mediaUrls.length - 1];
 
   return (
     <ScreenContainer scroll padded={false}>
@@ -71,7 +85,26 @@ export default function PostReviewScreen() {
         <Heading className="mt-4">Review before it goes out</Heading>
         <Muted className="mt-1 mb-5">Edit freely — this is exactly what will be published.</Muted>
 
-        <Card padded={false} className="p-1">
+        {image ? (
+          <Image source={{ uri: image }} className="mb-4 w-full rounded-2xl" style={{ aspectRatio: 1 }} resizeMode="cover" />
+        ) : (
+          <Card className="mb-4 items-center gap-2 py-6">
+            <View className="h-11 w-11 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-900/40">
+              <FontAwesome6 name="image" size={16} color="#6a3bff" />
+            </View>
+            <Muted className="text-center text-sm">No image yet — generate a matching banner for this post.</Muted>
+          </Card>
+        )}
+
+        <Button
+          label={image ? "Regenerate image" : "Generate image"}
+          variant="secondary"
+          loading={generatingImage}
+          icon={!generatingImage ? <FontAwesome6 name="wand-magic-sparkles" size={14} color="#5522eb" /> : undefined}
+          onPress={onGenerateImage}
+        />
+
+        <Card padded={false} className="mt-4 p-1">
           <Input
             value={content}
             onChangeText={setContent}
