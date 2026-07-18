@@ -4,6 +4,7 @@ from app.agents.chat_agent import reply as chat_reply
 from app.agents.content_agent import generate_post
 from app.agents.ideation_agent import suggest_topics
 from app.agents.image_agent import generate_image
+from app.agents.judge_agent import review_content
 from app.agents.vision_agent import describe_image
 from app.models.schemas import (
     ChatRequest,
@@ -12,6 +13,8 @@ from app.models.schemas import (
     GenerateContentResponse,
     GenerateImageRequest,
     GenerateImageResponse,
+    ReviewContentRequest,
+    ReviewContentResponse,
     SuggestTopicsRequest,
     SuggestTopicsResponse,
     VisionDescribeRequest,
@@ -50,3 +53,9 @@ def vision_describe(payload: VisionDescribeRequest) -> VisionDescribeResponse:
 def image_generate(payload: GenerateImageRequest) -> GenerateImageResponse:
     image_base64 = generate_image(payload.platform, payload.subjectText, payload.content)
     return GenerateImageResponse(imageBase64=image_base64)
+
+
+@router.post("/judge/review", response_model=ReviewContentResponse)
+def judge_review(payload: ReviewContentRequest) -> ReviewContentResponse:
+    result = review_content(payload.userId, payload.platform, payload.content)
+    return ReviewContentResponse(**result)

@@ -23,14 +23,16 @@ export async function listUsers(req: Request, res: Response): Promise<void> {
 }
 
 export async function getPlatformStats(_req: Request, res: Response): Promise<void> {
-  const [totalUsers, activeSubscriptions, postsPublished, postsPendingApproval] = await Promise.all([
-    User.countDocuments(),
-    User.countDocuments({ "subscription.status": "active" }),
-    Post.countDocuments({ status: "published" }),
-    Post.countDocuments({ status: "pendingApproval" }),
-  ]);
+  const [totalUsers, activeSubscriptions, postsPublished, postsPendingApproval, postsFlaggedHighRisk] =
+    await Promise.all([
+      User.countDocuments(),
+      User.countDocuments({ "subscription.status": "active" }),
+      Post.countDocuments({ status: "published" }),
+      Post.countDocuments({ status: "pendingApproval" }),
+      Post.countDocuments({ "safetyReview.riskLevel": "high" }),
+    ]);
 
-  res.json({ totalUsers, activeSubscriptions, postsPublished, postsPendingApproval });
+  res.json({ totalUsers, activeSubscriptions, postsPublished, postsPendingApproval, postsFlaggedHighRisk });
 }
 
 export async function listAllPosts(req: Request, res: Response): Promise<void> {

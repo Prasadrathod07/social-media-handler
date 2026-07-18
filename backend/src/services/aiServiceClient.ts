@@ -56,3 +56,13 @@ export function generatePostImage(
 ): Promise<{ imageBase64: string }> {
   return aiFetch("/agents/image/generate", { userId, platform, subjectText, content });
 }
+
+export interface SafetyReviewResult {
+  riskLevel: "low" | "medium" | "high";
+  issues: string[];
+  recommendation: "approve" | "needs_review" | "block";
+}
+
+export function reviewContent(userId: string, platform: string, content: string): Promise<SafetyReviewResult> {
+  return aiFetch("/agents/judge/review", { userId, platform, content });
+}

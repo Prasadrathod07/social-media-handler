@@ -71,3 +71,15 @@ class GenerateImageRequest(BaseModel):
 
 class GenerateImageResponse(BaseModel):
     imageBase64: str
+
+
+class ReviewContentRequest(BaseModel):
+    userId: str
+    platform: Platform
+    content: str
+
+
+class ReviewContentResponse(BaseModel):
+    riskLevel: Literal["low", "medium", "high"]
+    issues: list[str]
+    recommendation: Literal["approve", "needs_review", "block"]

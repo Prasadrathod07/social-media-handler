@@ -7,12 +7,22 @@ export interface User {
   name: string;
   role: "user" | "admin";
   onboardingComplete: boolean;
+  aiPaused: boolean;
   subscription?: {
     planId?: string;
     cadence?: Cadence;
     status: "trialing" | "active" | "past_due" | "canceled" | "none";
     currentPeriodEnd?: string;
   };
+}
+
+export type RiskLevel = "low" | "medium" | "high";
+
+export interface SafetyReview {
+  riskLevel: RiskLevel;
+  issues: string[];
+  recommendation: "approve" | "needs_review" | "block";
+  reviewedAt: string;
 }
 
 export interface Profile {
@@ -60,6 +70,7 @@ export interface Post {
   content: string;
   mediaUrls: string[];
   status: "draft" | "pendingApproval" | "approved" | "scheduled" | "published" | "failed";
+  safetyReview?: SafetyReview;
   scheduledAt?: string;
   publishedAt?: string;
   createdAt: string;

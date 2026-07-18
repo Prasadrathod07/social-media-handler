@@ -22,12 +22,22 @@ export interface PlatformUser {
   createdAt: string;
 }
 
+export type RiskLevel = "low" | "medium" | "high";
+
+export interface SafetyReview {
+  riskLevel: RiskLevel;
+  issues: string[];
+  recommendation: "approve" | "needs_review" | "block";
+  reviewedAt: string;
+}
+
 export interface Post {
   _id: string;
   userId: { _id: string; name: string; email: string } | string;
   platform: Platform;
   content: string;
   status: "draft" | "pendingApproval" | "approved" | "scheduled" | "published" | "failed";
+  safetyReview?: SafetyReview;
   scheduledAt?: string;
   publishedAt?: string;
   createdAt: string;
@@ -49,4 +59,5 @@ export interface PlatformStats {
   activeSubscriptions: number;
   postsPublished: number;
   postsPendingApproval: number;
+  postsFlaggedHighRisk: number;
 }

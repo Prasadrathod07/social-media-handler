@@ -16,6 +16,7 @@ export interface IUser extends Document {
     currentPeriodEnd?: Date;
   };
   onboardingComplete: boolean;
+  aiPaused: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -37,6 +38,7 @@ const userSchema = new Schema<IUser>(
       currentPeriodEnd: { type: Date },
     },
     onboardingComplete: { type: Boolean, default: false },
+    aiPaused: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

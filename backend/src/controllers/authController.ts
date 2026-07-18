@@ -91,6 +91,7 @@ export async function me(req: Request, res: Response): Promise<void> {
     name: user.name,
     role: user.role,
     onboardingComplete: user.onboardingComplete,
+    aiPaused: user.aiPaused,
     subscription: user.subscription,
   });
 }
@@ -105,4 +106,13 @@ export async function completeOnboarding(req: Request, res: Response): Promise<v
     throw new ApiError(404, "User not found");
   }
   res.json({ onboardingComplete: user.onboardingComplete });
+}
+
+export async function setAiPaused(req: Request, res: Response): Promise<void> {
+  const { paused } = z.object({ paused: z.boolean() }).parse(req.body);
+  const user = await User.findByIdAndUpdate(req.user!.id, { $set: { aiPaused: paused } }, { new: true });
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+  res.json({ aiPaused: user.aiPaused });
 }

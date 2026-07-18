@@ -9,6 +9,16 @@ export type PostStatus =
   | "published"
   | "failed";
 
+export type RiskLevel = "low" | "medium" | "high";
+export type JudgeRecommendation = "approve" | "needs_review" | "block";
+
+export interface ISafetyReview {
+  riskLevel: RiskLevel;
+  issues: string[];
+  recommendation: JudgeRecommendation;
+  reviewedAt: Date;
+}
+
 export interface IPost extends Document {
   _id: Types.ObjectId;
   userId: Types.ObjectId;
@@ -17,6 +27,7 @@ export interface IPost extends Document {
   content: string;
   mediaUrls: string[];
   status: PostStatus;
+  safetyReview?: ISafetyReview;
   scheduledAt?: Date;
   publishedAt?: Date;
   platformPostId?: string;
@@ -24,6 +35,16 @@ export interface IPost extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+const safetyReviewSchema = new Schema<ISafetyReview>(
+  {
+    riskLevel: { type: String, enum: ["low", "medium", "high"], required: true },
+    issues: { type: [String], default: [] },
+    recommendation: { type: String, enum: ["approve", "needs_review", "block"], required: true },
+    reviewedAt: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
 
 const postSchema = new Schema<IPost>(
   {
@@ -37,6 +58,7 @@ const postSchema = new Schema<IPost>(
       enum: ["draft", "pendingApproval", "approved", "scheduled", "published", "failed"],
       default: "draft",
     },
+    safetyReview: { type: safetyReviewSchema },
     scheduledAt: { type: Date },
     publishedAt: { type: Date },
     platformPostId: { type: String },

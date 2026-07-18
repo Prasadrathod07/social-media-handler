@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { Post, Topic } from "../models";
 import { ApiError } from "../utils/ApiError";
-import { generatePostContent, generatePostImage } from "../services/aiServiceClient";
+import { generatePostContent, generatePostImage, reviewContent } from "../services/aiServiceClient";
 import { saveBase64Image } from "../utils/fileStorage";
 
 export async function listMyPosts(req: Request, res: Response): Promise<void> {
@@ -27,6 +27,7 @@ export async function generatePost(req: Request, res: Response): Promise<void> {
   }
 
   const { content } = await generatePostContent(req.user!.id, platform, topic.subjectText);
+  const review = await reviewContent(req.user!.id, platform, content);
 
   const post = await Post.create({
     userId: req.user!.id,
@@ -34,6 +35,7 @@ export async function generatePost(req: Request, res: Response): Promise<void> {
     platform,
     content,
     status: "pendingApproval",
+    safetyReview: { ...review, reviewedAt: new Date() },
   });
 
   res.status(201).json(post);
@@ -69,10 +71,20 @@ export async function updatePostStatus(req: Request, res: Response): Promise<voi
     })
     .parse(req.body);
 
+  const existing = await Post.findOne({ _id: id, userId: req.user!.id });
+  if (!existing) {
+    throw new ApiError(404, "Post not found");
+  }
+
   const update: Record<string, unknown> = {};
   if (status) update.status = status;
-  if (content) update.content = content;
   if (scheduledAt) update.scheduledAt = new Date(scheduledAt);
+
+  if (content && content !== existing.content) {
+    update.content = content;
+    const review = await reviewContent(req.user!.id, existing.platform, content);
+    update.safetyReview = { ...review, reviewedAt: new Date() };
+  }
 
   const post = await Post.findOneAndUpdate({ _id: id, userId: req.user!.id }, { $set: update }, { new: true });
   res.json(post);

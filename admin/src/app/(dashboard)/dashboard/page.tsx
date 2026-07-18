@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, CreditCard, Send, Clock } from "lucide-react";
+import { Users, CreditCard, Send, Clock, ShieldAlert } from "lucide-react";
 import { StatCard } from "@/components/ui/StatCard";
 import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 import { getStats, listAllPosts } from "@/lib/adminApi";
 import { PlatformStats, Post } from "@/types";
 
@@ -21,11 +22,12 @@ export default function DashboardOverviewPage() {
       <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
       <p className="mt-1 text-sm text-muted">Platform-wide activity at a glance.</p>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard label="Total users" value={stats?.totalUsers ?? "—"} icon={Users} />
         <StatCard label="Active subscriptions" value={stats?.activeSubscriptions ?? "—"} icon={CreditCard} />
         <StatCard label="Posts published" value={stats?.postsPublished ?? "—"} icon={Send} />
         <StatCard label="Awaiting approval" value={stats?.postsPendingApproval ?? "—"} icon={Clock} />
+        <StatCard label="Flagged high-risk" value={stats?.postsFlaggedHighRisk ?? "—"} icon={ShieldAlert} />
       </div>
 
       <h2 className="mt-8 text-lg font-semibold tracking-tight">Recent posts</h2>
@@ -38,7 +40,15 @@ export default function DashboardOverviewPage() {
                 {post.platform} · {typeof post.userId === "object" ? post.userId.email : ""}
               </p>
             </div>
-            <span className="whitespace-nowrap text-xs capitalize text-muted">{post.status}</span>
+            <div className="flex shrink-0 items-center gap-2">
+              {post.safetyReview && post.safetyReview.riskLevel !== "low" ? (
+                <Badge
+                  label={`${post.safetyReview.riskLevel} risk`}
+                  tone={post.safetyReview.riskLevel === "high" ? "danger" : "warning"}
+                />
+              ) : null}
+              <span className="whitespace-nowrap text-xs capitalize text-muted">{post.status}</span>
+            </div>
           </Card>
         ))}
         {recentPosts.length === 0 ? (

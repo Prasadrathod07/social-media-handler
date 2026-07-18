@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { completeOnboarding, login, me, refresh, register } from "../controllers/authController";
+import { completeOnboarding, login, me, refresh, register, setAiPaused } from "../controllers/authController";
 import { asyncHandler } from "../utils/asyncHandler";
 import { requireAuth } from "../middleware/auth";
 
@@ -10,5 +10,6 @@ router.post("/login", asyncHandler(login));
 router.post("/refresh", asyncHandler(refresh));
 router.get("/me", requireAuth, asyncHandler(me));
 router.post("/me/complete-onboarding", requireAuth, asyncHandler(completeOnboarding));
+router.post("/me/ai-paused", requireAuth, asyncHandler(setAiPaused));
 
 export default router;

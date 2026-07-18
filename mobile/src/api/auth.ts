@@ -30,3 +30,7 @@ export async function logout(): Promise<void> {
 export async function completeOnboarding(): Promise<void> {
   await api.post("/auth/me/complete-onboarding");
 }
+
+export async function setAiPaused(paused: boolean): Promise<{ aiPaused: boolean }> {
+  return api.post("/auth/me/ai-paused", { paused });
+}

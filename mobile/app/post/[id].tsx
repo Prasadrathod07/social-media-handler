@@ -4,7 +4,19 @@ import { useLocalSearchParams, router } from "expo-router";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { ScreenContainer, Heading, Muted, Card, AppText, Badge, Button, Input, PlatformIcon } from "@/components";
 import { generatePostImage, listPosts, updatePostStatus } from "@/api/posts";
-import { Post } from "@/types";
+import { Post, RiskLevel } from "@/types";
+
+const riskTone: Record<RiskLevel, "success" | "warning" | "danger"> = {
+  low: "success",
+  medium: "warning",
+  high: "danger",
+};
+
+const riskLabel: Record<RiskLevel, string> = {
+  low: "Looks safe to post",
+  medium: "Worth a second look",
+  high: "High risk — review carefully",
+};
 
 export default function PostReviewScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -12,6 +24,7 @@ export default function PostReviewScreen() {
   const [content, setContent] = useState("");
   const [saving, setSaving] = useState<"approve" | "save" | null>(null);
   const [generatingImage, setGeneratingImage] = useState(false);
+  const [confirmingRisk, setConfirmingRisk] = useState(false);
 
   const load = useCallback(async () => {
     const posts = await listPosts();
@@ -24,7 +37,10 @@ export default function PostReviewScreen() {
     load();
   }, [load]);
 
-  async function onApprove() {
+  const review = post?.safetyReview;
+  const needsConfirmation = review ? review.riskLevel !== "low" || review.recommendation !== "approve" : false;
+
+  async function submitApproval() {
     if (!post) return;
     setSaving("approve");
     try {
@@ -32,7 +48,16 @@ export default function PostReviewScreen() {
       router.back();
     } finally {
       setSaving(null);
+      setConfirmingRisk(false);
     }
+  }
+
+  function onApprove() {
+    if (needsConfirmation && !confirmingRisk) {
+      setConfirmingRisk(true);
+      return;
+    }
+    submitApproval();
   }
 
   async function onSaveDraft() {
@@ -85,6 +110,35 @@ export default function PostReviewScreen() {
         <Heading className="mt-4">Review before it goes out</Heading>
         <Muted className="mt-1 mb-5">Edit freely — this is exactly what will be published.</Muted>
 
+        {review ? (
+          <Card className="mb-4">
+            <View className="flex-row items-center gap-2">
+              <FontAwesome6
+                name={review.riskLevel === "low" ? "shield-halved" : "triangle-exclamation"}
+                size={14}
+                color={review.riskLevel === "low" ? "#1fb87d" : review.riskLevel === "medium" ? "#f5a524" : "#f24e5c"}
+              />
+              <AppText weight="semibold" className="text-sm">
+                AI safety review
+              </AppText>
+              <View className="ml-auto">
+                <Badge label={review.riskLevel} tone={riskTone[review.riskLevel]} />
+              </View>
+            </View>
+            <Muted className="mt-2 text-xs">{riskLabel[review.riskLevel]}</Muted>
+            {review.issues.length > 0 ? (
+              <View className="mt-2 gap-1">
+                {review.issues.map((issue, i) => (
+                  <View key={i} className="flex-row items-start gap-1.5">
+                    <Muted className="text-xs">•</Muted>
+                    <Muted className="flex-1 text-xs">{issue}</Muted>
+                  </View>
+                ))}
+              </View>
+            ) : null}
+          </Card>
+        ) : null}
+
         {image ? (
           <Image source={{ uri: image }} className="mb-4 w-full rounded-2xl" style={{ aspectRatio: 1 }} resizeMode="cover" />
         ) : (
@@ -107,7 +161,10 @@ export default function PostReviewScreen() {
         <Card padded={false} className="mt-4 p-1">
           <Input
             value={content}
-            onChangeText={setContent}
+            onChangeText={(text) => {
+              setContent(text);
+              setConfirmingRisk(false);
+            }}
             multiline
             numberOfLines={10}
             style={{ minHeight: 220, textAlignVertical: "top", borderWidth: 0, backgroundColor: "transparent" }}
@@ -118,11 +175,31 @@ export default function PostReviewScreen() {
           <FontAwesome6 name="circle-info" size={12} color="#94a3b8" />
           <Muted className="text-xs">{content.length} characters</Muted>
         </View>
+
+        {confirmingRisk ? (
+          <Card className="mt-4 border-danger">
+            <AppText weight="medium" className="text-sm text-danger">
+              This post was flagged by the safety review.
+            </AppText>
+            <Muted className="mt-1 text-xs">
+              Approving will publish it as-is once scheduled. Make sure you've read the flags above.
+            </Muted>
+          </Card>
+        ) : null}
       </View>
 
       <View className="mt-6 gap-2 px-5 pb-4">
-        <Button label="Approve & schedule" loading={saving === "approve"} onPress={onApprove} />
-        <Button label="Save changes" variant="secondary" loading={saving === "save"} onPress={onSaveDraft} />
+        <Button
+          label={confirmingRisk ? "Yes, approve anyway" : "Approve & schedule"}
+          variant={confirmingRisk ? "danger" : "primary"}
+          loading={saving === "approve"}
+          onPress={onApprove}
+        />
+        {confirmingRisk ? (
+          <Button label="Cancel" variant="ghost" onPress={() => setConfirmingRisk(false)} />
+        ) : (
+          <Button label="Save changes" variant="secondary" loading={saving === "save"} onPress={onSaveDraft} />
+        )}
       </View>
     </ScreenContainer>
   );
